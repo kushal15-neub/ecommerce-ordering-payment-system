@@ -1,17 +1,41 @@
-# Import path function for URL routing
 from django.urls import path
+from .views import ProductListCreateView, ProductDetailView
 
-# Import our Product API View
-from .views import ProductListView
-
+from .views import (
+    ProductListCreateView,
+    ProductDetailView
+)
 
 urlpatterns = [
 
-    # GET /api/products/
+    # GET, POST
     path(
         '',
-        ProductListView.as_view(),
-        name='product-list'
+        ProductListCreateView.as_view(),
+        name='product-list-create'
+    ),
+
+    # GET ONE, PUT, DELETE
+    path(
+        '<int:pk>/',
+        ProductDetailView.as_view(),
+        name='product-detail'
+    ),
+
+]
+
+urlpatterns = [
+
+    path(
+        '',
+        ProductListCreateView.as_view(),
+        name='product-list-create'
+    ),
+
+    path(
+        '<int:pk>/',
+        ProductDetailView.as_view(),
+        name='product-detail'
     ),
 
 ]

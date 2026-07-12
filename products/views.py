@@ -1,8 +1,5 @@
-# Import APIView class from DRF
-from rest_framework.views import APIView
-
-# Import Response object for sending JSON
-from rest_framework.response import Response
+# Import DRF generic views
+from rest_framework import generics
 
 # Import Product model
 from .models import Product
@@ -11,19 +8,25 @@ from .models import Product
 from .serializers import ProductSerializer
 
 
-# API endpoint for listing products
-class ProductListView(APIView):
+# ---------------------------------------------------
+# Product List + Create API
+# ---------------------------------------------------
+class ProductListCreateView(generics.ListCreateAPIView):
 
-    def get(self, request):
+    # Fetch all products
+    queryset = Product.objects.all()
 
-        # Get all products from database
-        products = Product.objects.all()
+    # Convert model <-> JSON
+    serializer_class = ProductSerializer
 
-        # Convert products into JSON format
-        serializer = ProductSerializer(
-            products,
-            many=True
-        )
 
-        # Return JSON response
-        return Response(serializer.data)
+# ---------------------------------------------------
+# Product Detail + Update + Delete API
+# ---------------------------------------------------
+class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
+
+    # Fetch all products
+    queryset = Product.objects.all()
+
+    # Convert model <-> JSON
+    serializer_class = ProductSerializer
