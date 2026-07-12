@@ -5,10 +5,12 @@ from rest_framework import serializers
 from .models import Product
 
 
-# Serializer converts Product objects into JSON
 class ProductSerializer(serializers.ModelSerializer):
+    """
+    Converts Product objects to JSON
+    and JSON data to Product objects
+    """
 
     class Meta:
         model = Product
-
-        fields = '__all__'
+        fields = "__all__"

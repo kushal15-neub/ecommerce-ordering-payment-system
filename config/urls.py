@@ -20,20 +20,21 @@ from django.contrib import admin
 # Import path and include
 from django.urls import path, include
 
+from django.http import HttpResponse
+from django.urls import path, include
 
 urlpatterns = [
+    path('', lambda request: HttpResponse("E-commerce API Running")),
 
-    # Admin panel
     path('admin/', admin.site.urls),
 
-    # Product APIs
     path(
         'api/products/',
         include('products.urls')
     ),
 
-path(
-    "api/orders/",
-    include("orders.urls")
-),
+    path(
+        'api/orders/',
+        include('orders.urls')
+    ),
 ]

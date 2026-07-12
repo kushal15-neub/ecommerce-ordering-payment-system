@@ -1,41 +1,35 @@
 from django.urls import path
-from .views import ProductListCreateView, ProductDetailView
 
 from .views import (
     ProductListCreateView,
-    ProductDetailView
+    ProductDetailView,
+    CategoryTreeAPIView,
 )
 
 urlpatterns = [
 
-    # GET, POST
+    # GET all products
+    # POST create product
     path(
         '',
         ProductListCreateView.as_view(),
         name='product-list-create'
     ),
 
-    # GET ONE, PUT, DELETE
+    # GET one product
+    # PUT update product
+    # DELETE product
     path(
         '<int:pk>/',
         ProductDetailView.as_view(),
         name='product-detail'
     ),
 
-]
-
-urlpatterns = [
-
+    # DFS Category Tree API
     path(
-        '',
-        ProductListCreateView.as_view(),
-        name='product-list-create'
-    ),
-
-    path(
-        '<int:pk>/',
-        ProductDetailView.as_view(),
-        name='product-detail'
+        'categories/<int:category_id>/tree/',
+        CategoryTreeAPIView.as_view(),
+        name='category-tree'
     ),
 
 ]
