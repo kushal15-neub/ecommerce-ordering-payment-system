@@ -8,31 +8,84 @@ from users.models import User
 from products.models import Product
 
 
+# --------------------------------------------------
+# Order Model
+# --------------------------------------------------
 class Order(models.Model):
-    """
-    Order model
-    Stores customer orders
-    """
 
-    # Customer who places order
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('cancelled', 'Cancelled')
+    ]
+
+    # Customer
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='orders'
     )
 
-    # Product ordered
+    # Total order amount
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    # Order status
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f"Order #{self.id}"
+
+
+# --------------------------------------------------
+# Order Item Model
+# --------------------------------------------------
+class OrderItem(models.Model):
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE
     )
 
-    # Quantity ordered
     quantity = models.PositiveIntegerField()
 
-    # Order creation time
-    created_at = models.DateTimeField(
-        auto_now_add=True
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
     )
 
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    def save(self, *args, **kwargs):
+
+        # Deterministic algorithm
+        self.subtotal = self.quantity * self.price
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Order #{self.id}"
+        return f"{self.product.name}"

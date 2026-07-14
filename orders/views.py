@@ -1,18 +1,51 @@
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Order
 from .serializers import OrderSerializer
 
 
-# List Orders + Create Order
-class OrderListCreateView(generics.ListCreateAPIView):
+# -------------------------------------
+# List My Orders + Create Order
+# -------------------------------------
+class OrderListCreateView(
+    generics.ListCreateAPIView
+):
 
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    permission_classes = [
+        IsAuthenticated
+    ]
 
-# Retrieve + Update + Delete
-class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
 
-    queryset = Order.objects.all()
+        return Order.objects.filter(
+            user=self.request.user
+        )
+
+    def perform_create(self, serializer):
+
+        serializer.save(
+            user=self.request.user
+        )
+
+
+# -------------------------------------
+# Order Detail
+# -------------------------------------
+class OrderDetailView(
+    generics.RetrieveUpdateDestroyAPIView
+):
+
     serializer_class = OrderSerializer
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def get_queryset(self):
+
+        return Order.objects.filter(
+            user=self.request.user
+        )
