@@ -24,9 +24,23 @@ from django.http import HttpResponse
 from django.urls import path, include
 
 urlpatterns = [
-    path('', lambda request: HttpResponse("E-commerce API Running")),
 
-    path('admin/', admin.site.urls),
+    path(
+        '',
+        lambda request: HttpResponse(
+            "E-commerce API Running"
+        )
+    ),
+
+    path(
+        'admin/',
+        admin.site.urls
+    ),
+
+    path(
+        'api/auth/',
+        include('users.urls')
+    ),
 
     path(
         'api/products/',
@@ -37,12 +51,9 @@ urlpatterns = [
         'api/orders/',
         include('orders.urls')
     ),
+
     path(
-    'api/orders/',
-    include('orders.urls')
-),
-    path(
-    'api/payments/',
-    include('payments.urls')
-),
+        'api/payments/',
+        include('payments.urls')
+    ),
 ]

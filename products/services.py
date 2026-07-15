@@ -1,5 +1,6 @@
 from django.core.cache import cache
-from .models import Category
+
+from .models import Category, Product
 
 
 def get_all_child_categories(category):
@@ -64,3 +65,24 @@ def get_category_tree(category_id):
     )
 
     return result
+
+
+def get_recommended_products(product, limit=5):
+    """
+    Recommend related products using category tree (DFS).
+    """
+
+    if not product.category:
+        return Product.objects.exclude(
+            id=product.id
+        )[:limit]
+
+    category_ids = get_category_and_children_ids(
+        product.category
+    )
+
+    return Product.objects.filter(
+        category_id__in=category_ids
+    ).exclude(
+        id=product.id
+    )[:limit]

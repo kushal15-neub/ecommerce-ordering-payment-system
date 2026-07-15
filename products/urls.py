@@ -4,6 +4,7 @@ from .views import (
     ProductListCreateView,
     ProductDetailView,
     CategoryTreeAPIView,
+    ProductRecommendationsAPIView,
 )
 
 urlpatterns = [
@@ -19,6 +20,12 @@ urlpatterns = [
     # GET one product
     # PUT update product
     # DELETE product
+    path(
+        'recommendations/<int:pk>/',
+        ProductRecommendationsAPIView.as_view(),
+        name='product-recommendations'
+    ),
+
     path(
         '<int:pk>/',
         ProductDetailView.as_view(),

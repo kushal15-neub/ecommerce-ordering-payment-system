@@ -46,6 +46,7 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
         read_only_fields = [
+            'user',
             'total_amount',
             'status',
             'created_at',
@@ -66,6 +67,17 @@ class OrderSerializer(serializers.ModelSerializer):
 
             product = item_data['product']
             quantity = item_data['quantity']
+
+            if product.stock < quantity:
+                raise serializers.ValidationError(
+                    {
+                        "items": (
+                            f"Insufficient stock for "
+                            f"{product.name}. "
+                            f"Available: {product.stock}"
+                        )
+                    }
+                )
 
             price = product.price
             subtotal = quantity * price

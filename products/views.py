@@ -14,23 +14,30 @@ from .serializers import ProductSerializer
 # Import services
 from .services import (
     get_category_tree,
-    get_category_and_children_ids
+    get_category_and_children_ids,
+    get_recommended_products
 )
+
+# Import permissions
+from .permissions import IsAdminUserRole
 
 
 # ==================================================
 # Product List + Create API
 # ==================================================
-class ProductListCreateView(generics.ListCreateAPIView):
+class ProductListCreateView(
+    generics.ListCreateAPIView
+):
 
     serializer_class = ProductSerializer
+    permission_classes = [IsAdminUserRole]
 
     def get_queryset(self):
 
         queryset = Product.objects.all()
 
         category_id = self.request.query_params.get(
-            'category'
+            "category"
         )
 
         if category_id:
@@ -66,8 +73,8 @@ class ProductDetailView(
 ):
 
     queryset = Product.objects.all()
-
     serializer_class = ProductSerializer
+    permission_classes = [IsAdminUserRole]
 
 
 # ==================================================
@@ -81,7 +88,41 @@ class CategoryTreeAPIView(APIView):
             category_id
         )
 
-        return Response({
-            "category_id": category_id,
-            "children": data
-        })
+        return Response(
+            {
+                "category_id": category_id,
+                "children": data
+            }
+        )
+
+
+# ==================================================
+# Product Recommendations API (DFS)
+# ==================================================
+class ProductRecommendationsAPIView(APIView):
+
+    def get(self, request, pk):
+
+        try:
+            product = Product.objects.get(pk=pk)
+
+        except Product.DoesNotExist:
+
+            return Response(
+                {"error": "Product not found"},
+                status=404
+            )
+
+        recommendations = get_recommended_products(product)
+
+        serializer = ProductSerializer(
+            recommendations,
+            many=True
+        )
+
+        return Response(
+            {
+                "product_id": pk,
+                "recommendations": serializer.data
+            }
+        )

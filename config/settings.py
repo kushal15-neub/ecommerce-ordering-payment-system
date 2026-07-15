@@ -25,7 +25,10 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%g9l1deoldgzz8zmip(q*yejr^l0p&d&i64-$en$l7!vl!wm#)'
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-%g9l1deoldgzz8zmip(q*yejr^l0p&d&i64-$en$l7!vl!wm#)"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -115,6 +118,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -134,18 +142,39 @@ USE_TZ = True
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'users.User'
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-category-cache",
+REDIS_URL = os.getenv("REDIS_URL", "")
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
     }
-}
-
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-category-cache",
+        }
+    }
 
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

@@ -4,7 +4,8 @@ from .views import (
     CreatePaymentView,
     PaymentListView,
     PaymentDetailView,
-    StripeWebhookView
+    StripeWebhookView,
+    BkashWebhookView
 )
 
 urlpatterns = [
@@ -25,9 +26,15 @@ urlpatterns = [
         PaymentDetailView.as_view(),
         name='payment-detail'
     ),
-     path(
+    path(
         'stripe/webhook/',
         StripeWebhookView.as_view(),
         name='stripe-webhook'
+    ),
+
+    path(
+        'bkash/webhook/',
+        BkashWebhookView.as_view(),
+        name='bkash-webhook'
     ),
 ]
