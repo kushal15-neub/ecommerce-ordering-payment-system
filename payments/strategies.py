@@ -27,14 +27,19 @@ class StripePaymentStrategy(PaymentStrategy):
         )
 
         return {
-            "provider": "stripe",
-            "transaction_id": payment_intent.id,
-            "client_secret": payment_intent.client_secret,
-            "status": payment_intent.status,
-            "amount": float(amount),
-            "raw_response": payment_intent
-        }
-
+    "provider": "stripe",
+    "transaction_id": payment_intent.id,
+    "client_secret": payment_intent.client_secret,
+    "status": payment_intent.status,
+    "amount": float(amount),
+    "raw_response": {
+        "id": payment_intent.id,
+        "status": payment_intent.status,
+        "client_secret": payment_intent.client_secret,
+        "amount": payment_intent.amount,
+        "currency": payment_intent.currency
+    }
+}
 
 class BkashPaymentStrategy(PaymentStrategy):
 

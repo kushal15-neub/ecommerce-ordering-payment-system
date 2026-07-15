@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (
     CreatePaymentView,
     PaymentListView,
-    PaymentDetailView
+    PaymentDetailView,
+    StripeWebhookView
 )
 
 urlpatterns = [
@@ -23,5 +24,10 @@ urlpatterns = [
         '<int:pk>/',
         PaymentDetailView.as_view(),
         name='payment-detail'
+    ),
+     path(
+        'stripe/webhook/',
+        StripeWebhookView.as_view(),
+        name='stripe-webhook'
     ),
 ]
