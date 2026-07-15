@@ -1,5 +1,10 @@
 from abc import ABC, abstractmethod
 import uuid
+import stripe
+
+from django.conf import settings
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class PaymentStrategy(ABC):
@@ -13,11 +18,21 @@ class StripePaymentStrategy(PaymentStrategy):
 
     def pay(self, amount):
 
+        payment_intent = stripe.PaymentIntent.create(
+            amount=int(float(amount) * 100),  # Stripe uses cents
+            currency="usd",
+            automatic_payment_methods={
+                "enabled": True
+            }
+        )
+
         return {
             "provider": "stripe",
-            "transaction_id": str(uuid.uuid4()),
-            "status": "success",
-            "amount": float(amount)
+            "transaction_id": payment_intent.id,
+            "client_secret": payment_intent.client_secret,
+            "status": payment_intent.status,
+            "amount": float(amount),
+            "raw_response": payment_intent
         }
 
 
@@ -28,6 +43,6 @@ class BkashPaymentStrategy(PaymentStrategy):
         return {
             "provider": "bkash",
             "transaction_id": str(uuid.uuid4()),
-            "status": "success",
-            "amount": float(amount)      
-}
+            "status": "pending",
+            "amount": float(amount)
+        }

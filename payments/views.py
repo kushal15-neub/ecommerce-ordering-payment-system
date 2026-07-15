@@ -11,7 +11,20 @@ from .strategies import (
     StripePaymentStrategy,
     BkashPaymentStrategy
 )
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView
+)
+class PaymentListView(ListAPIView):
 
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+
+class PaymentDetailView(RetrieveAPIView):
+
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
 
 class CreatePaymentView(APIView):
 
@@ -33,6 +46,34 @@ class CreatePaymentView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        # Prevent duplicate payment
+
+        if order.status == "paid":
+
+            return Response(
+                {
+                    "error": "Order already paid"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check stock before payment
+
+        order_items = OrderItem.objects.filter(
+            order=order
+        )
+
+        for item in order_items:
+
+            if item.product.stock < item.quantity:
+
+                return Response(
+                    {
+                        "error": f"Insufficient stock for {item.product.name}"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         # Strategy Pattern
 
@@ -65,18 +106,14 @@ class CreatePaymentView(APIView):
             raw_response=result
         )
 
-        # Update Order Status
+        # Successful Payment
 
         if payment.status == "success":
 
             order.status = "paid"
             order.save()
 
-            # Reduce Stock
-
-            order_items = OrderItem.objects.filter(
-                order=order
-            )
+            # Reduce stock
 
             for item in order_items:
 
@@ -94,3 +131,4 @@ class CreatePaymentView(APIView):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
+        
